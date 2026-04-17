@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In – NoteSphere</title>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117;
+      --surface: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.08);
+      --accent: #7c6af7;
+      --accent2: #c084fc;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --success: #22c55e;
+    }
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite alternate;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #7c6af7, transparent);
+      top: -100px; left: -100px;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #c084fc, transparent);
+      bottom: -100px; right: -100px;
+      animation-delay: -4s;
+    }
+    @keyframes float {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.5s ease both;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      background: linear-gradient(135deg, #fff, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h1 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 36px; line-height: 1.6; }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 28px 0;
+      color: var(--muted); font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+
+    .g-signin-wrap { display: flex; justify-content: center; }
+
+    /* Redirecting overlay */
+    #redirecting {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 0;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .redirect-text { color: #86efac; font-size: 14px; }
+    .redirect-sub  { color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🔮</div>
+    <span class="logo-text">NoteSphere</span>
+  </div>
+
+  <!-- Sign-in form -->
+  <div id="signin-view">
+    <h1>Welcome Back</h1>
+    <p class="subtitle">Sign in with your Google account to access NoteSphere.</p>
+    <div class="divider">Continue with</div>
+
+    <div id="g_id_onload"
+         data-client_id="611967211835-c3df3js1u6t220alhe8rosmo4d4bkcms.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+    <div class="g-signin-wrap">
+      <div class="g_id_signin"
+           data-type="standard"
+           data-theme="filled_black"
+           data-text="sign_in_with"
+           data-shape="rectangular"
+           data-logo_alignment="left"
+           data-size="large">
+      </div>
+    </div>
+  </div>
+
+  <!-- Shown briefly while redirecting -->
+  <div id="redirecting">
+    <div class="spinner"></div>
+    <div class="redirect-text">✅ Signed in successfully!</div>
+    <div class="redirect-sub">Taking you to dashboard...</div>
+  </div>
+</div>
+
+<script>
+  // ── JWT decoder ──
+  function parseJwt(token) {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  }
+
+  // ── Called by Google after successful login ──
+  function handleCredentialResponse(response) {
+    const user = parseJwt(response.credential);
+
+    // Save user + login time to localStorage
+    localStorage.setItem("notesphere_user", JSON.stringify(user));
+    localStorage.setItem("notesphere_login_time", Date.now().toString());
+
+    // Show spinner briefly, then redirect
+    document.getElementById("signin-view").style.display   = "none";
+    document.getElementById("redirecting").style.display   = "flex";
+
+    setTimeout(function() {
+      window.location.href = "index.html";
+    }, 1200); // 1.2s so user sees the success message
+  }
+
+  // ── If already logged in, skip sign-in page entirely ──
+  window.onload = function() {
+    const saved = localStorage.getItem("notesphere_user");
+    if (saved) {
+      window.location.replace("index.html"); // replace so back button won't return here
+    }
+  };
+</script>
+
+</body>
+</html>

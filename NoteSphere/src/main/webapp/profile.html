@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- ✅ Add this inside <head> of index.html, notes.html, upload.html, profile.html, admin_panel.html -->
+<script>
+  (function () {
+    const user = localStorage.getItem("notesphere_user");
+    if (!user) {
+      window.location.replace("google_signin_test.html");
+    }
+  })();
+</script>
+    <title>NoteSphere – Profile</title>
+    <link rel="stylesheet" href="css/templatemo-glossy-touch.css">
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <style>
+        .profile-wrapper {
+            max-width: 620px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .profile-wrapper h2 {
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* ── Card shell ── */
+        .profile-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+        }
+
+        /* ── Top hero strip ── */
+        .profile-hero {
+            background: rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .profile-avatar {
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.35);
+            object-fit: cover;
+            display: block;
+            margin: 0 auto 14px;
+        }
+        .profile-avatar-placeholder {
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.12);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; font-weight: 600;
+            color: white;
+            margin: 0 auto 14px;
+        }
+        .profile-name  { font-size: 1.4rem; font-weight: 700; color: white; margin-bottom: 4px; }
+        .profile-email { font-size: 13px; color: rgba(255,255,255,0.55); }
+        .verified-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 10px;
+            background: rgba(34,197,94,0.15);
+            border: 1px solid rgba(34,197,94,0.35);
+            color: #86efac;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 99px;
+        }
+        .unverified-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 10px;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 99px;
+        }
+
+        /* ── Body sections ── */
+        .profile-body { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+
+        .section-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        /* ── Info grid ── */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .info-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 13px 14px;
+        }
+        .info-item.full { grid-column: 1 / -1; }
+        .info-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.4); margin-bottom: 5px; }
+        .info-value { font-size: 13px; font-weight: 500; color: white; word-break: break-all; }
+        .info-value.mono { font-family: monospace; font-size: 11px; color: rgba(255,255,255,0.7); }
+
+        /* ── Stats strip ── */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px 10px;
+            text-align: center;
+        }
+        .stat-num { font-size: 26px; font-weight: 700; color: white; line-height: 1; }
+        .stat-lab { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+        /* ── Logout button ── */
+        .btn-logout {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            border: 1px solid rgba(239,68,68,0.35);
+            background: rgba(239,68,68,0.12);
+            color: #fca5a5;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-logout:hover { background: rgba(239,68,68,0.22); }
+
+        /* ── Not logged in ── */
+        .not-logged { color: rgba(255,255,255,0.65); text-align: center; padding: 32px 20px; }
+        .not-logged a { color: white; font-weight: 600; text-decoration: underline; }
+
+        @media (max-width: 480px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .info-item.full { grid-column: 1; }
+            .stats-row { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-shapes">
+        <div class="shape"></div><div class="shape"></div><div class="shape"></div>
+        <div class="shape"></div><div class="shape"></div><div class="shape"></div>
+    </div>
+
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span><span></span><span></span>
+    </button>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar glass">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 48 48" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="5" opacity="0.9"/>
+                    <circle cx="32" cy="16" r="4" opacity="0.8"/>
+                    <circle cx="16" cy="32" r="4" opacity="0.7"/>
+                    <circle cx="32" cy="32" r="5" opacity="0.85"/>
+                    <circle cx="24" cy="8"  r="2" opacity="1"/>
+                    <circle cx="8"  cy="24" r="2" opacity="0.9"/>
+                    <circle cx="40" cy="24" r="2" opacity="0.9"/>
+                    <circle cx="24" cy="40" r="2" opacity="1"/>
+                    <circle cx="8"  cy="8"  r="1" opacity="0.6"/>
+                    <circle cx="40" cy="8"  r="1" opacity="0.6"/>
+                    <circle cx="8"  cy="40" r="1" opacity="0.6"/>
+                    <circle cx="40" cy="40" r="1" opacity="0.6"/>
+                </svg>
+            </div>
+            <span>NoteSphere</span>
+        </div>
+          <div class="nav-links">
+            <a href="index.html" ><b>🏠 Dashboard</b></a>
+            <a href="notes.html"><b>📝 Notes</b></a>
+            <a href="question_papers.html"><b>📄 Question Papers</b></a>
+            <a href="upload.html"><b>📤 Upload</b></a>
+            <a href="profile.html" class="active"><b>👤 Profile</b></a>
+            <a href="admin_panel.html"><b>🛡️ Admin Panel</b></a>
+            <a href="google_signin_test.html" onclick="logout()" style="background-color:rgb(146,4,4);text-align:center;margin-top:auto;"><b>🚪 Logout</b></a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="profile-wrapper">
+            <h2>👤 Profile</h2>
+            <div id="profileCard">
+                <!-- Filled by JS below -->
+                <div class="profile-card">
+                    <div class="not-logged">
+                        <p>You are not logged in.</p>
+                        <p><a href="google_signin_test.html">Sign in with Google</a> to view your profile.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div id="footer">
+            <div class="container">
+                <footer class="glass">
+                    <div class="footer-content">
+                        <div class="copyright">
+                            &copy; 2026 NoteSphere. All rights reserved. Crafted by KSE Comp TE-B.
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            const user = JSON.parse(localStorage.getItem('notesphere_user'));
+            const container = document.getElementById('profileCard');
+
+            if (!user) return; // shows the "not logged in" message
+
+            // Build initials fallback avatar
+            const initials = ((user.given_name?.[0] || '') + (user.family_name?.[0] || '')).toUpperCase() || '?';
+            const avatarHTML = user.picture
+                ? `<img src="${user.picture}" alt="Profile photo" class="profile-avatar" />`
+                : `<div class="profile-avatar-placeholder">${initials}</div>`;
+
+            // Verified badge
+            const verifiedHTML = user.email_verified
+                ? `<span class="verified-badge">&#10003; Email verified</span>`
+                : `<span class="unverified-badge">&#10007; Email not verified</span>`;
+
+            // Login time (stored when user signs in — see note below)
+            const loginTime = localStorage.getItem('notesphere_login_time')
+                ? new Date(parseInt(localStorage.getItem('notesphere_login_time'))).toLocaleString()
+                : 'This session';
+
+            container.innerHTML = `
+                <div class="profile-card">
+
+                    <!-- Hero strip -->
+                    <div class="profile-hero">
+                        ${avatarHTML}
+                        <div class="profile-name">${user.name || '—'}</div>
+                        <div class="profile-email">${user.email || '—'}</div>
+                        ${verifiedHTML}
+                    </div>
+
+                    <div class="profile-body">
+
+                        <!-- Account info -->
+                        <div>
+                            <div class="section-label">Account info</div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">First Name</div>
+                                    <div class="info-value">${user.given_name || '—'}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Last Name</div>
+                                    <div class="info-value">${user.family_name || '—'}</div>
+                                </div>
+                                <div class="info-item full">
+                                    <div class="info-label">Email Address</div>
+                                    <div class="info-value">${user.email || '—'}</div>
+                                </div>
+                                <div class="info-item full">
+                                    <div class="info-label">Google User ID (sub)</div>
+                                    <div class="info-value mono">${user.sub || '—'}</div>
+                                </div>
+                                <div class="info-item full">
+                                    <div class="info-label">Login Provider</div>
+                                    <div class="info-value">Google Sign-In (OAuth 2.0)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity stats (static for now — wire to DB later) -->
+                        <div>
+                            <div class="section-label">My Activity</div>
+                            <div class="stats-row">
+                                <div class="stat-card">
+                                    <div class="stat-num" id="statTotal">0</div>
+                                    <div class="stat-lab">Total Uploads</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-num" id="statApproved">0</div>
+                                    <div class="stat-lab">Approved</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-num" id="statPending">0</div>
+                                    <div class="stat-lab">Pending</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Session info -->
+                        <div>
+                            <div class="section-label">Session</div>
+                            <div class="info-grid">
+                                <div class="info-item full">
+                                    <div class="info-label">Signed in at</div>
+                                    <div class="info-value">${loginTime}</div>
+                                </div>
+                                <div class="info-item full">
+                                    <div class="info-label">Session stored in</div>
+                                    <div class="info-value mono">localStorage → notesphere_user</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Logout -->
+                        <a class="btn-logout" href="google_signin_test.html" onclick="localStorage.removeItem('notesphere_user')">
+                            🚪 Sign out
+                        </a>
+
+                    </div>
+                </div>
+            `;
+
+            // Optional: fetch real upload counts from your servlet
+            // fetchUserStats(user.email);
+        });
+
+        // ── Fetch real stats from your backend (uncomment when ready) ──
+        // async function fetchUserStats(email) {
+        //     const res = await fetch(`/UserStatsServlet?email=${encodeURIComponent(email)}`);
+        //     const data = await res.json();
+        //     document.getElementById('statTotal').textContent    = data.total    ?? 0;
+        //     document.getElementById('statApproved').textContent = data.approved ?? 0;
+        //     document.getElementById('statPending').textContent  = data.pending  ?? 0;
+        // }
+    </script>
+    <script src="js/templatemo-glossy-touch.js"></script>
+    <script>
+    // ── Logout function (used by sidebar button) ──
+    function logout() {
+        localStorage.removeItem('notesphere_user');
+        localStorage.removeItem('notesphere_login_time');
+        window.location.replace('google_signin_test.html');
+    }
+
+    function logout() {
+        localStorage.removeItem('notesphere_user');
+        localStorage.removeItem('notesphere_login_time');
+        window.location.replace('google_signin_test.html');
+    }
+    window.addEventListener('DOMContentLoaded', function () {
+        const user = JSON.parse(localStorage.getItem('notesphere_user'));
+        const container = document.getElementById('profileCard');
+
+        if (!user) {
+            // Auth guard already handles redirect, but just in case:
+            window.location.replace('google_signin_test.html');
+            return;
+        }
+
+        // Build initials fallback avatar
+        const initials = ((user.given_name?.[0] || '') + (user.family_name?.[0] || '')).toUpperCase() || '?';
+        const avatarHTML = user.picture
+            ? `<img src="${user.picture}" alt="Profile photo" class="profile-avatar" />`
+            : `<div class="profile-avatar-placeholder">${initials}</div>`;
+
+        const verifiedHTML = user.email_verified
+            ? `<span class="verified-badge">&#10003; Email verified</span>`
+            : `<span class="unverified-badge">&#10007; Email not verified</span>`;
+
+        const loginTime = localStorage.getItem('notesphere_login_time')
+            ? new Date(parseInt(localStorage.getItem('notesphere_login_time'))).toLocaleString()
+            : 'This session';
+
+        container.innerHTML = `
+            <div class="profile-card">
+                <div class="profile-hero">
+                    ${avatarHTML}
+                    <div class="profile-name">${user.name || '—'}</div>
+                    <div class="profile-email">${user.email || '—'}</div>
+                    ${verifiedHTML}
+                </div>
+                <div class="profile-body">
+                    <div>
+                        <div class="section-label">Account info</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">First Name</div>
+                                <div class="info-value">${user.given_name || '—'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Last Name</div>
+                                <div class="info-value">${user.family_name || '—'}</div>
+                            </div>
+                            <div class="info-item full">
+                                <div class="info-label">Email Address</div>
+                                <div class="info-value">${user.email || '—'}</div>
+                            </div>
+                            <div class="info-item full">
+                                <div class="info-label">Google User ID (sub)</div>
+                                <div class="info-value mono">${user.sub || '—'}</div>
+                            </div>
+                            <div class="info-item full">
+                                <div class="info-label">Login Provider</div>
+                                <div class="info-value">Google Sign-In (OAuth 2.0)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-label">My Activity</div>
+                        <div class="stats-row">
+                            <div class="stat-card">
+                                <div class="stat-num" id="statTotal">0</div>
+                                <div class="stat-lab">Total Uploads</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-num" id="statApproved">0</div>
+                                <div class="stat-lab">Approved</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-num" id="statPending">0</div>
+                                <div class="stat-lab">Pending</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-label">Session</div>
+                        <div class="info-grid">
+                            <div class="info-item full">
+                                <div class="info-label">Signed in at</div>
+                                <div class="info-value">${loginTime}</div>
+                            </div>
+                            <div class="info-item full">
+                                <div class="info-label">Session stored in</div>
+                                <div class="info-value mono">localStorage → notesphere_user</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sign out button inside card -->
+                    <a class="btn-logout" href="google_signin_test.html" onclick="logout()">🚪 Sign out</a>
+                </div>
+            </div>
+        `;
+    });
+</script>
+</body>
+</html>

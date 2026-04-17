@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteSphere – Admin Panel</title>
+    <link rel="stylesheet" href="css/templatemo-glossy-touch.css">
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <style>
+        .admin-wrapper {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .admin-header h2 { color: white; font-size: 1.8rem; }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            backdrop-filter: blur(12px);
+        }
+        .stat-box .stat-num  { font-size: 2.2rem; font-weight: 700; }
+        .stat-box .stat-label { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+        .stat-box.pending  { border-color: rgba(251,191,36,0.4);  background: rgba(251,191,36,0.1); }
+        .stat-box.approved { border-color: rgba(34,197,94,0.4);   background: rgba(34,197,94,0.1); }
+        .stat-box.rejected { border-color: rgba(239,68,68,0.4);   background: rgba(239,68,68,0.1); }
+
+        /* Filter tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+        .tab-btn:hover,
+        .tab-btn.active { background: rgba(255,255,255,0.25); }
+
+        /* Table */
+        .uploads-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+            font-size: 14px;
+        }
+        .uploads-table th {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255,255,255,0.7);
+        }
+        .uploads-table td {
+            padding: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            vertical-align: middle;
+        }
+        .uploads-table tr:hover td { background: rgba(255,255,255,0.04); }
+
+        /* Status badge */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge.pending  { background: rgba(251,191,36,0.2);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.4); }
+        .badge.approved { background: rgba(34,197,94,0.2);   color: #22c55e; border: 1px solid rgba(34,197,94,0.4); }
+        .badge.rejected { background: rgba(239,68,68,0.2);   color: #ef4444; border: 1px solid rgba(239,68,68,0.4); }
+
+        /* Action buttons */
+        .btn-approve, .btn-reject, .btn-view {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: 0.2s;
+            margin: 2px;
+        }
+        .btn-approve { background: rgba(34,197,94,0.2);  color: #22c55e; border: 1px solid rgba(34,197,94,0.4); }
+        .btn-approve:hover { background: rgba(34,197,94,0.35); }
+        .btn-reject  { background: rgba(239,68,68,0.2);  color: #ef4444; border: 1px solid rgba(239,68,68,0.4); }
+        .btn-reject:hover  { background: rgba(239,68,68,0.35); }
+        .btn-view    { background: rgba(255,255,255,0.1); color: white;   border: 1px solid rgba(255,255,255,0.2); }
+        .btn-view:hover    { background: rgba(255,255,255,0.2); }
+
+        .table-wrap {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        .loading-msg { color: rgba(255,255,255,0.6); text-align: center; padding: 40px; font-size: 14px; }
+        .empty-msg   { color: rgba(255,255,255,0.4); text-align: center; padding: 40px; font-size: 14px; }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-size: 14px;
+            color: white;
+            z-index: 9999;
+            display: none;
+            backdrop-filter: blur(12px);
+        }
+        .toast.success { background: rgba(34,197,94,0.3);  border: 1px solid rgba(34,197,94,0.5); }
+        .toast.error   { background: rgba(239,68,68,0.3);  border: 1px solid rgba(239,68,68,0.5); }
+
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .uploads-table th:nth-child(4),
+            .uploads-table td:nth-child(4) { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-shapes">
+    <div class="shape"></div><div class="shape"></div><div class="shape"></div>
+    <div class="shape"></div><div class="shape"></div><div class="shape"></div>
+</div>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle Menu">
+    <span></span><span></span><span></span>
+</button>
+
+<!-- SIDEBAR -->
+<div class="sidebar glass">
+    <div class="logo">
+        <div class="logo-icon">
+            <svg viewBox="0 0 48 48" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="5" opacity="0.9"/>
+                <circle cx="32" cy="16" r="4" opacity="0.8"/>
+                <circle cx="16" cy="32" r="4" opacity="0.7"/>
+                <circle cx="32" cy="32" r="5" opacity="0.85"/>
+                <circle cx="24" cy="8"  r="2" opacity="1"/>
+                <circle cx="8"  cy="24" r="2" opacity="0.9"/>
+                <circle cx="40" cy="24" r="2" opacity="0.9"/>
+                <circle cx="24" cy="40" r="2" opacity="1"/>
+                <circle cx="8"  cy="8"  r="1" opacity="0.6"/>
+                <circle cx="40" cy="8"  r="1" opacity="0.6"/>
+                <circle cx="8"  cy="40" r="1" opacity="0.6"/>
+                <circle cx="40" cy="40" r="1" opacity="0.6"/>
+            </svg>
+        </div>
+        <span>NoteSphere</span>
+    </div>
+     <div class="nav-links">
+            <a href="index.html"><b>🏠 Dashboard</b></a>
+            <a href="notes.html" ><b>📝 Notes</b></a>
+            <a href="question_papers.html"><b>📄 Question Papers</b></a>
+            <a href="upload.html"><b>📤 Upload</b></a>
+            <a href="profile.html"><b>👤 Profile</b></a>
+            <a href="admin_panel.html"  class="active"><b>🛡️ Admin Panel</b></a>
+            <a href="google_signin_test.html" onclick="logout()" style="background-color:rgb(146,4,4);text-align:center;margin-top:auto;"><b>🚪 Logout</b></a>
+        </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <div class="admin-wrapper">
+
+        <div class="admin-header">
+            <h2>🛡️ Admin Panel</h2>
+            <button class="tab-btn" onclick="loadUploads(currentFilter)">🔄 Refresh</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-box pending">
+                <div class="stat-num" id="countPending">—</div>
+                <div class="stat-label">⏳ Pending</div>
+            </div>
+            <div class="stat-box approved">
+                <div class="stat-num" id="countApproved">—</div>
+                <div class="stat-label">✅ Approved</div>
+            </div>
+            <div class="stat-box rejected">
+                <div class="stat-num" id="countRejected">—</div>
+                <div class="stat-label">❌ Rejected</div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="tab-btn active" onclick="filterTab('pending',  this)">⏳ Pending</button>
+            <button class="tab-btn"        onclick="filterTab('approved', this)">✅ Approved</button>
+            <button class="tab-btn"        onclick="filterTab('rejected', this)">❌ Rejected</button>
+            <button class="tab-btn"        onclick="filterTab('all',      this)">📋 All</button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+            <table class="uploads-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Subject</th>
+                        <th>Year / Unit</th>
+                        <th>Uploaded By</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="uploadsBody">
+                    <tr><td colspan="7" class="loading-msg">Loading uploads...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div id="footer">
+        <div class="container">
+            <footer class="glass">
+                <div class="footer-content">
+                    <div class="copyright">
+                        &copy; 2026 NoteSphere. All rights reserved. Crafted by KSE Comp TE-B.
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // ⚠️ Change this to your Tomcat server URL
+    const BASE_URL = 'http://localhost:8080/NoteSphere';
+
+    let currentFilter = 'pending';
+    async function loadUploads(status) {
+        const body = document.getElementById('uploadsBody');
+        body.innerHTML = `<tr><td colspan="7" class="loading-msg">Loading...</td></tr>`;
+
+        try {
+            // 🔥 Fetch ALL data once
+            const resAll = await fetch(`${BASE_URL}/AdminServlet?status=all`);
+            const all = await resAll.json();
+
+            // 🔥 Update counters (FIXED)
+            document.getElementById('countPending').textContent  = all.filter(u => u.status.toLowerCase() === 'pending').length;
+            document.getElementById('countApproved').textContent = all.filter(u => u.status.toLowerCase() === 'approved').length;
+            document.getElementById('countRejected').textContent = all.filter(u => u.status.toLowerCase() === 'rejected').length;
+
+            // 🔥 Filter locally instead of second API call
+            let data = all;
+            if (status !== 'all') {
+                data = all.filter(u => u.status.toLowerCase() === status.toLowerCase());
+            }
+
+            if (!data.length) {
+                body.innerHTML = `<tr><td colspan="7" class="empty-msg">No ${status} uploads found.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = data.map((u, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${u.title}</strong></td>
+                    <td>${u.subject}</td>
+                    <td>${u.year} / ${u.unit}</td>
+                    <td style="font-size:12px;color:rgba(255,255,255,0.6)">${u.uploadedBy}</td>
+                    <td><span class="badge ${u.status.toLowerCase()}">${u.status}</span></td>
+                    <td>
+                        <a class="btn-view" href="${BASE_URL}/${u.filePath}" target="_blank">👁 View</a>
+                        ${u.status.toLowerCase() !== 'approved' ? `<button class="btn-approve" onclick="updateStatus(${u.id}, 'approve')">✅ Approve</button>` : ''}
+                        ${u.status.toLowerCase() !== 'rejected' ? `<button class="btn-reject" onclick="updateStatus(${u.id}, 'reject')">❌ Reject</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+
+        } catch (err) {
+            body.innerHTML = `<tr><td colspan="7" class="loading-msg" style="color:#fca5a5">❌ Could not connect to server.</td></tr>`;
+        }
+    }
+
+    async function updateStatus(id, action) {
+        try {
+            const res = await fetch(`${BASE_URL}/AdminServlet`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `id=${id}&action=${action}`
+            });
+
+            const data = await res.json();
+
+            showToast(data.success ? 'success' : 'error', data.message);
+            if (data.success) loadUploads(currentFilter);
+
+        } catch (err) {
+            showToast('error', 'Could not connect to server.');
+        }
+    }
+
+    function filterTab(status, btn) {
+        currentFilter = status;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        loadUploads(status);
+    }
+
+    function showToast(type, message) {
+        const toast = document.getElementById('toast');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 3000);
+    }
+
+    // Load pending on page open
+    loadUploads('pending');
+</script>
+<script src="js/templatemo-glossy-touch.js"></script>
+</body>
+</html>

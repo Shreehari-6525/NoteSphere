@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ✅ Add this inside <head> of index.html, notes.html, upload.html, profile.html, admin_panel.html -->
+<script>
+  (function () {
+    const user = localStorage.getItem("notesphere_user");
+    if (!user) {
+      window.location.replace("google_signin_test.html");
+    }
+  })();
+</script>
+    <title>NoteSphere – Upload</title>
+    <link rel="stylesheet" href="css/templatemo-glossy-touch.css">
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <style>
+        .upload-wrapper {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .upload-wrapper h2 {
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 36px 32px;
+            backdrop-filter: blur(16px);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .form-group select,
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-family: inherit;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+            appearance: none;
+        }
+        .form-group select option { background: #1a1a2e; color: white; }
+        .form-group select:focus,
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.15);
+        }
+        .form-group input::placeholder { color: rgba(255,255,255,0.5); }
+
+        /* Drag & Drop zone */
+        .drop-zone {
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.08);
+        }
+        .drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .drop-zone .dz-icon { font-size: 40px; margin-bottom: 12px; }
+        .drop-zone .dz-title { font-size: 15px; font-weight: 500; color: white; margin-bottom: 6px; }
+        .drop-zone .dz-sub   { font-size: 12px; color: rgba(255,255,255,0.5); }
+        .drop-zone .dz-filename {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #86efac;
+            font-weight: 500;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 8px;
+        }
+        .submit-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .success-msg {
+            display: none;
+            background: rgba(34,197,94,0.15);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+            color: #86efac;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-shapes">
+        <div class="shape"></div><div class="shape"></div><div class="shape"></div>
+        <div class="shape"></div><div class="shape"></div><div class="shape"></div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Hamburger -->
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span><span></span><span></span>
+    </button>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar glass">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 48 48" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="5" opacity="0.9"/>
+                    <circle cx="32" cy="16" r="4" opacity="0.8"/>
+                    <circle cx="16" cy="32" r="4" opacity="0.7"/>
+                    <circle cx="32" cy="32" r="5" opacity="0.85"/>
+                    <circle cx="24" cy="8"  r="2" opacity="1"/>
+                    <circle cx="8"  cy="24" r="2" opacity="0.9"/>
+                    <circle cx="40" cy="24" r="2" opacity="0.9"/>
+                    <circle cx="24" cy="40" r="2" opacity="1"/>
+                    <circle cx="8"  cy="8"  r="1" opacity="0.6"/>
+                    <circle cx="40" cy="8"  r="1" opacity="0.6"/>
+                    <circle cx="8"  cy="40" r="1" opacity="0.6"/>
+                    <circle cx="40" cy="40" r="1" opacity="0.6"/>
+                </svg>
+            </div>
+            <span>NoteSphere</span>
+        </div>
+          <div class="nav-links">
+            <a href="index.html"><b>🏠 Dashboard</b></a>
+            <a href="notes.html"><b>📝 Notes</b></a>
+            <a href="question_papers.html"><b>📄 Question Papers</b></a>
+            <a href="upload.html"  class="active"><b>📤 Upload</b></a>
+            <a href="profile.html"><b>👤 Profile</b></a>
+            <a href="admin_panel.html"><b>🛡️ Admin Panel</b></a>
+            <a href="google_signin_test.html" onclick="logout()" style="background-color:rgb(146,4,4);text-align:center;margin-top:auto;"><b>🚪 Logout</b></a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="upload-wrapper">
+            <h2>📤 Upload Notes</h2>
+
+            <div class="upload-card">
+                <!-- Year -->
+                <div class="form-group">
+                    <label>Year</label>
+                    <select id="upload-year">
+                        <option value="" disabled selected>Select Year</option>
+                        <option>First Year (FE)</option>
+                        <option>Second Year (SE)</option>
+                        <option>Third Year (TE)</option>
+                        <option>Final Year (BE)</option>
+                    </select>
+                </div>
+
+                <!-- Subject -->
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="upload-subject" placeholder="e.g. Web Technology" />
+                </div>
+
+                <!-- Unit -->
+                <div class="form-group">
+                    <label>Unit</label>
+                    <select id="upload-unit">
+                        <option value="" disabled selected>Select Unit</option>
+                        <option>Unit 1</option>
+                        <option>Unit 2</option>
+                        <option>Unit 3</option>
+                        <option>Unit 4</option>
+                        <option>Unit 5</option>
+                        <option>Unit 6</option>
+                    </select>
+                </div>
+
+                <!-- Title -->
+                <div class="form-group">
+                    <label>Note Title</label>
+                    <input type="text" id="upload-title" placeholder="e.g. HTML Basics Notes" />
+                </div>
+
+                <!-- File Drop Zone -->
+                <div class="form-group">
+                    <label>Upload PDF</label>
+                    <div class="drop-zone" id="dropZone">
+                        <input type="file" accept=".pdf" id="fileInput" onchange="handleFileSelect(this)" />
+                        <div class="dz-icon">📄</div>
+                        <div class="dz-title">Drag & drop your PDF here</div>
+                        <div class="dz-sub">or click to browse files</div>
+                        <div class="dz-filename" id="fileName"></div>
+                    </div>
+                </div>
+
+                <button class="submit-btn" onclick="handleUpload()">🚀 Submit for Approval</button>
+
+                <div class="success-msg" id="successMsg">
+                    ✅ Your notes have been submitted for admin approval!
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div id="footer">
+            <div class="container">
+                <footer class="glass">
+                    <div class="footer-content">
+                        <div class="copyright">
+                            &copy; 2026 NoteSphere. All rights reserved. Crafted by KSE Comp TE-B.
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    
+    function logout() {
+        localStorage.removeItem('notesphere_user');
+        localStorage.removeItem('notesphere_login_time');
+        window.location.replace('google_signin_test.html');
+    }
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = '📎 ' + file.name;
+            }
+        }
+
+        // Drag & Drop visual feedback
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover',  () => dropZone.classList.add('dragover'));
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop',      () => dropZone.classList.remove('dragover'));
+
+        function handleUpload() {
+            const year    = document.getElementById('upload-year').value;
+            const subject = document.getElementById('upload-subject').value.trim();
+            const unit    = document.getElementById('upload-unit').value;
+            const title   = document.getElementById('upload-title').value.trim();
+            const file    = document.getElementById('fileInput').files[0];
+
+            if (!year || !subject || !unit || !title || !file) {
+                alert('⚠️ Please fill in all fields and select a PDF file.');
+                return;
+            }
+
+            // Show success (backend integration will replace this)
+            document.getElementById('successMsg').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMsg').style.display = 'none';
+            }, 4000);
+        }
+    </script>
+    <script src="js/templatemo-glossy-touch.js"></script>
+    <script>
+const BASE_URL = "http://localhost:8080/NoteSphere";
+
+function handleFileSelect(input) {
+    const file = input.files[0];
+    if (file) {
+        document.getElementById('fileName').textContent = '📎 ' + file.name;
+    }
+}
+
+dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover',  () => dropZone.classList.add('dragover'));
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop',      () => dropZone.classList.remove('dragover'));
+
+async function handleUpload() {
+    const year    = document.getElementById('upload-year').value;
+    const subject = document.getElementById('upload-subject').value.trim();
+    const unit    = document.getElementById('upload-unit').value;
+    const title   = document.getElementById('upload-title').value.trim();
+    const file    = document.getElementById('fileInput').files[0];
+
+    if (!year || !subject || !unit || !title || !file) {
+        alert('⚠️ Please fill in all fields and select a PDF file.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("year", year);
+    formData.append("subject", subject);
+    formData.append("unit", unit);
+    formData.append("title", title);
+    formData.append("uploadedBy", "testuser@gmail.com"); // later replace with login
+    formData.append("file", file);
+
+    try {
+        const res = await fetch(BASE_URL + "/UploadServlet", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById('successMsg').textContent = "✅ " + data.message;
+            document.getElementById('successMsg').style.display = 'block';
+
+            // reset form
+            document.getElementById('upload-title').value = "";
+            document.getElementById('upload-subject').value = "";
+            document.getElementById('upload-year').selectedIndex = 0;
+            document.getElementById('upload-unit').selectedIndex = 0;
+            document.getElementById('fileInput').value = "";
+            document.getElementById('fileName').textContent = "";
+
+        } else {
+            alert("❌ " + data.message);
+        }
+
+    } catch (err) {
+        alert("❌ Server error. Is Tomcat running?");
+    }
+}
+</script>
+</body>
+</html>
